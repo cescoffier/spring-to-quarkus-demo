@@ -73,6 +73,10 @@ Repeat the measurement for native. Be aware, this may take some time, and there 
 
 Don't forget to clear the database before the test with `just restart-infra`.
 
+```shell
+./mvnw clean native:compile -Pnative
+```
+
 
 ## Quarkus application
 
@@ -167,7 +171,7 @@ java -jar ./target/quarkus-app/quarkus-run.jar  -Xmx256m -Xms256m
 Do the same for native:
 
 ```
-./mvnw package -Pnative
+./mvnw clean package -Pnative
 target/code-with-quarkus-1.0.0-SNAPSHOT-runner -Xmx256m -Xms256m
 ```
 
