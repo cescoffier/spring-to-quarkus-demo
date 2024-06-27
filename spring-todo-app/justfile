@@ -9,3 +9,5 @@ start-infra:
 
 stop-infra:
     podman stop database
+
+restart-infra: stop-infra start-infra
