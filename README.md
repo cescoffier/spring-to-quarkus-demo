@@ -52,14 +52,14 @@ When measuring the footprint of a Java application, you should measure Resident 
 On MacOS, to measure the RSS, run
 
 ```shell
-ps aux | grep -i java | grep -i todo | grep -v grep | awk {'print $2'} | xargs ps x -o pid,rss,command -p
+ps aux | grep -i java | grep -i todo | grep -v grep | awk {'print $2'} | xargs ps x -o pid,rss,command -p | awk '{$2=int($2/1024)"M";}{ print;}
 ```
-
+This finds the process ID, makes sure to exclude the grep process itself, and then runs `ps` on that process to get the RSS, and then converts KB to MB. 
 You should get something like 
 
 ```shell
   PID    RSS COMMAND
-37043 254672 java -jar target/spring-todo-app-0.0.1-SNAPSHOT.jar -Xmx256m -Xms256m
+37043 267M java -jar target/spring-todo-app-0.0.1-SNAPSHOT.jar -Xmx256m -Xms256m
 ```
 
 This shows an RSS of 254,672 KB.
