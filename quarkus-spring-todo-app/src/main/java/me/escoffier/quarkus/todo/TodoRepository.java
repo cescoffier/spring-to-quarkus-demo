@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TodoRepository extends JpaRepository<Todo, Long> {
 
-
     @Modifying
     @Query("delete from Todo t where t.completed = true")
     void clearCompleted();

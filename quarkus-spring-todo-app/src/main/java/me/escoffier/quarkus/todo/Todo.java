@@ -24,7 +24,6 @@ public class Todo {
     @Column(name = "ordering")
     private int order;
 
-
     public Long getId() {
         return id;
     }
