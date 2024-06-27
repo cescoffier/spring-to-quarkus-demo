@@ -15,11 +15,12 @@ restart-infra: stop-infra start-infra
 stress:
     http :8080/api
     http POST :8080/api title=foo
+    export ID=$(http POST :8080/api title=foo | jq '.id')
     http POST :8080/api title=bar
     http :8080/api
     http POST :8080/api title=baz
     http :8080/api
-    http PATCH :8080/api/1 title=foo-done completed:=true
+    http PATCH :8080/api/$ID title=foo-done completed:=true
 
 mta:
     cd spring-todo-app
