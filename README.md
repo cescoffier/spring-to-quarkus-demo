@@ -30,7 +30,7 @@ Before going further, start the database that the live instance will be using. O
 
 ```
 just start-infra
-java -jar target/spring-todo-app-0.0.1-SNAPSHOT.jar -Xmx600m -Xms600m
+java -jar target/spring-todo-app-0.0.1-SNAPSHOT.jar -Xmx256m -Xms256m
 ```
 Setting the fixed `-Xmx` and `-Xms` is important to reduce warmup effects and give apples-to-apples comparisons.
 
@@ -59,7 +59,7 @@ You should get something like
 
 ```shell
   PID    RSS COMMAND
-37043 254672 java -jar target/spring-todo-app-0.0.1-SNAPSHOT.jar -Xmx600m -Xms600m
+37043 254672 java -jar target/spring-todo-app-0.0.1-SNAPSHOT.jar -Xmx256m -Xms256m
 ```
 
 This shows an RSS of 254,672 KB.
@@ -159,7 +159,7 @@ Then, repeat the measurements: new DB, same -Xmx-Xms, same operations, highlight
 
 ```
 just restart-infra
-java -jar ./target/quarkus-app/quarkus-run.jar  -Xmx600m -Xms600m
+java -jar ./target/quarkus-app/quarkus-run.jar  -Xmx256m -Xms256m
 ```
 
 ### Native 
@@ -168,7 +168,7 @@ Do the same for native:
 
 ```
 ./mvnw package -Pnative
-target/code-with-quarkus-1.0.0-SNAPSHOT-runner -Xmx600m -Xms600m
+target/code-with-quarkus-1.0.0-SNAPSHOT-runner -Xmx256m -Xms256m
 ```
 
 The important thing to note is that it's the same app, same code, with the same features – just smaller and faster.
