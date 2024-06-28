@@ -77,6 +77,8 @@ Don't forget to clear the database before the test with `just restart-infra`.
 ./mvnw clean native:compile -Pnative
 ```
 
+> [!NOTE]
+> You need to use the `native:compile` goal instead of `package` because Spring Boot delegates native compilation to the graal maven plugin rather than wrapping it or capturing it via the `package` goal.
 
 ## Quarkus application
 
