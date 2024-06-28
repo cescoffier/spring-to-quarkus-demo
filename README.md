@@ -73,6 +73,14 @@ Repeat the measurement for native. Be aware, this may take some time, and there 
 
 Don't forget to clear the database before the test with `just restart-infra`.
 
+```shell
+./mvnw clean native:compile -Pnative
+```
+
+> [!NOTE]
+> You need to use the `native:compile` goal instead of `package` because Spring Boot delegates native compilation to the graal maven plugin rather than wrapping it or capturing it via the `package` goal.
+>
+> See https://docs.spring.io/spring-boot/how-to/native-image/developing-your-first-application.html#howto.native-image.developing-your-first-application.native-build-tools.maven for details.
 
 ## Quarkus application
 
@@ -167,7 +175,7 @@ java -jar ./target/quarkus-app/quarkus-run.jar  -Xmx256m -Xms256m
 Do the same for native:
 
 ```
-./mvnw package -Pnative
+./mvnw clean package -Pnative
 target/code-with-quarkus-1.0.0-SNAPSHOT-runner -Xmx256m -Xms256m
 ```
 
