@@ -1,9 +1,12 @@
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/quarkus_test
-    driver-class-name: org.postgresql.Driver
     username: quarkus_test
     password: quarkus_test
   jpa:
-    hibernate.ddl-auto: create-drop
-    database: POSTGRESQL
+    hibernate:
+      ddl-auto: create-drop
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always

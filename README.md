@@ -90,45 +90,33 @@ cd ..
 
 You can also edit the pom by hand, which is more compelling as a demo, but harder, because it's a lot of xml to wrangle. 
 
-Whichever way you do the transformation, once the pom is correct, you remove code which is no longer needed. Delete `TodoApplication.java`, and remove all of the setup code from `TodoAppApplicationTests`. The following code should all be removed:
+Whichever way you do the transformation, once the pom is correct, you remove code which is no longer needed. Delete [`TodoApplication.java`](spring-todo-app/src/main/java/me/escoffier/spring/todo/TodoApplication.java), [`ContainersConfig.java`](spring-todo-app/src/test/java/me/escoffier/spring/todo/ContainersConfig.java), and [`TestApplication.java`](spring-todo-app/src/test/java/me/escoffier/spring/todo/TestApplication.java).
+
+Then remove all of the setup code from [`TodoAppApplicationTests`](spring-todo-app/src/test/java/me/escoffier/spring/todo/TodoAppApplicationTests.java). The following code should all be removed:
 
 ```java
-	@Container
-	static final PostgreSQLContainer<?> DATABASE = new PostgreSQLContainer<>("postgres:15-bullseye")
-			.withDatabaseName("quarkus_test")
-			.withUsername("quarkus_test")
-			.withPassword("quarkus_test")
-			.withExposedPorts(5432);
+@Autowired
+private WebApplicationContext context;
 
-	@DynamicPropertySource
-	static void neo4jProperties(DynamicPropertyRegistry registry) {
-		registry.add("spring.datasource.url", DATABASE::getJdbcUrl);
-	}
+@LocalServerPort
+int randomServerPort;
 
-	@Autowired
-	private WebApplicationContext context;
-
-	@LocalServerPort
-	int randomServerPort;
-
-	@BeforeEach
-	public void setup() {
-		RestAssuredMockMvc.webAppContextSetup(context);
-		RestAssured.port = randomServerPort;
-		RestAssured.requestSpecification = new RequestSpecBuilder()
-				.setContentType(ContentType.JSON)
-				.setAccept(ContentType.JSON)
-				.build();
-	}
-
+@BeforeEach
+public void setup() {
+	RestAssuredMockMvc.webAppContextSetup(context);
+	RestAssured.port = randomServerPort;
+	RestAssured.requestSpecification = new RequestSpecBuilder()
+			.setContentType(ContentType.JSON)
+			.setAccept(ContentType.JSON)
+			.build();
+}
 ```
 
-Also remove all of the annotations on the `TodoAppApplicationTests` class:
+Also, remove all of the annotations on the `TodoAppApplicationTests` class:
 
 ```java
-@RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-@Testcontainers
+@Import(ContainersConfig.class)
 ```
 
 and replaced them with

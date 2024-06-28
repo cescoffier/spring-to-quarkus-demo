@@ -1,0 +1,95 @@
+name: Build and test
+
+env:
+  GRAALVM_CE_VERSION: '21.0.2'
+  JVM_VERSION: '21'
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**/*.md'
+      - '.github/**'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '**/*.md'
+      - '.github/**'
+
+concurrency:
+  group: "workflow = ${{ github.workflow }}, ref = ${{ github.event.ref }}, pr = ${{ github.event.pull_request.id }}"
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  jvm-build-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app:
+          - quarkus-spring-todo-app
+          - quarkus-todo-app
+          - spring-todo-app
+    name: "jvm-build-test-${{ matrix.app }}"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JVM_VERSION }}
+          distribution: temurin
+          cache: maven
+
+      - name: Build and test
+        working-directory: ${{ matrix.app }}
+        run: ./mvnw -B clean verify -Dquarkus.http.host=0.0.0.0 -DskipITs=false
+
+  native-build-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app:
+          - quarkus-spring-todo-app
+          - quarkus-todo-app
+          - spring-todo-app
+    name: "native-build-test-${{ matrix.app }}"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache and restore GraalVM CE
+        id: check-graal-cache
+        uses: actions/cache@v4
+        with:
+          path: graalvm-community-jdk-${{ env.GRAALVM_CE_VERSION }}_linux-x64_bin.tar.gz
+          key: graal-distro-${{ env.JVM_VERSION }}
+
+      - name: Download GraalVM CE ${{ matrix.graal.graal }}
+        if: steps.check-graal-cache.outputs.cache-hit != 'true'
+        run: |
+          download_url="https://github.com/graalvm/graalvm-ce-builds/releases/download/jdk-${{ env.GRAALVM_CE_VERSION }}/graalvm-community-jdk-${{ env.GRAALVM_CE_VERSION }}_linux-x64_bin.tar.gz"
+          wget -q -O graalvm-community-jdk-${{ env.GRAALVM_CE_VERSION }}_linux-x64_bin.tar.gz $download_url
+
+      - name: Setup GraalVM CE
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'jdkfile'
+          jdkFile: graalvm-community-jdk-${{ env.GRAALVM_CE_VERSION }}_linux-x64_bin.tar.gz
+          java-version: ${{ env.JVM_VERSION }}
+          architecture: x64
+          cache: maven
+
+      - name: Build native (Spring)
+        if: matrix.app == 'spring-todo-app'
+        run: ./mvnw -B clean native:compile -Pnative
+
+      - name: Build and test native (Quarkus)
+        if: matrix.app != 'spring-todo-app'
+        run: ./mvnw -B clean verify -Pnative -Dquarkus.http.host=0.0.0.0 -DskipITs=false
