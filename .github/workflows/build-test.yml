@@ -88,8 +88,10 @@ jobs:
 
       - name: Build native (Spring)
         if: matrix.app == 'spring-todo-app'
+        working-directory: ${{ matrix.app }}
         run: ./mvnw -B clean native:compile -Pnative
 
       - name: Build and test native (Quarkus)
         if: matrix.app != 'spring-todo-app'
+        working-directory: ${{ matrix.app }}
         run: ./mvnw -B clean verify -Pnative -Dquarkus.http.host=0.0.0.0 -DskipITs=false
