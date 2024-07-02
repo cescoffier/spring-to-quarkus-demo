@@ -51,6 +51,36 @@ jobs:
         working-directory: ${{ matrix.app }}
         run: ./mvnw -B clean verify -Dquarkus.http.host=0.0.0.0 -DskipITs=false
 
+  jvm-rss:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app:
+          - spring
+          - quarkus-spring
+          - quarkus
+    name: "jvm-rss-${{ matrix.app }}"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: extractions/setup-just@v2
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JVM_VERSION }}
+          distribution: temurin
+          cache: maven
+
+      - name: RSS
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install httpie
+          just rss-${{ matrix.app }}-java
+          echo "## rss-${{ matrix.app }}-java " >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          cat rss-${{ matrix.app }}-java.txt >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
   native-build-test:
     runs-on: ubuntu-latest
     strategy:
