@@ -55,7 +55,7 @@ rss-spring-java: build-spring-java start-infra  && stop-infra
     PID=$!
     sleep 15
     just stress
-    RSS=$(ps aux | grep -i java | grep -i todo | grep -v grep | awk {'print $2'} | xargs ps x -o pid,rss,command -p | awk '{$2=int($2/1024)"M";}{ print;}' | tail +2)
+    RSS=$(ps aux | grep -i java | grep -i spring | grep -v grep | grep -v bash | awk {'print $2'} | xargs ps -o pid,rss,command -p | awk '{$2=int($2/1024)"M";}{ print;}' | tail -n 1)
     echo $RSS
     echo $RSS > rss-spring-java.txt
     kill $PID
@@ -67,7 +67,7 @@ rss-quarkus-spring-java: build-quarkus-spring-java start-infra  && stop-infra
     PID=$!
     sleep 5
     just stress
-    RSS=$(ps aux | grep -i java | grep -i todo | grep -v grep | awk {'print $2'} | xargs ps x -o pid,rss,command -p | awk '{$2=int($2/1024)"M";}{ print;}' | tail +2)
+    RSS=$(ps aux | grep -i java | grep -i quarkus | grep -v grep | grep -v bash | awk {'print $2'} | xargs ps -o pid,rss,command -p | awk '{$2=int($2/1024)"M";}{ print;}' | tail -n 1)
     echo $RSS
     echo $RSS > rss-quarkus-spring-java.txt
     kill $PID
@@ -79,43 +79,43 @@ rss-quarkus-java: build-quarkus-java start-infra  && stop-infra
     PID=$!
     sleep 5
     just stress
-    RSS=$(ps aux | grep -i java | grep -i todo | grep -v grep | awk {'print $2'} | xargs ps x -o pid,rss,command -p | awk '{$2=int($2/1024)"M";}{ print;}' | tail +2)
+    RSS=$(ps aux | grep -i java | grep -i quarkus | grep -v grep | grep -v bash  | awk {'print $2'} | xargs ps -o pid,rss,command -p | awk '{$2=int($2/1024)"M";}{ print;}' | tail -n 1)
     echo $RSS
     echo $RSS > rss-quarkus-java.txt
     kill $PID
 
-rss-spring-native: build-spring-native start-infra  && stop-infra
+rss-spring-native: start-infra build-spring-native  && stop-infra
     #!/usr/bin/env bash
     set -euxo pipefail
     ./spring-todo-app/target/spring-todo-app -Xmx256M -Xms256M &
     PID=$!
-    sleep 5
+    sleep 10
     just stress
-    RSS=$(ps aux | grep -i spring-todo-app | grep -v grep | awk {'print $2'} | xargs ps x -o pid,rss,command -p | awk '{$2=int($2/1024)"M";}{ print;}' | tail +2)
+    RSS=$(ps aux | grep -i spring-todo-app | grep -v grep | grep -v bash  | awk {'print $2'} | xargs ps -o pid,rss,command -p | awk '{$2=int($2/1024)"M";}{ print;}' | tail -n 1)
     echo $RSS
     echo $RSS > rss-spring-native.txt
     kill $PID
 
-rss-quarkus-spring-native: build-quarkus-spring-native start-infra  && stop-infra
+rss-quarkus-spring-native: start-infra build-quarkus-spring-native  && stop-infra
     #!/usr/bin/env bash
     set -euxo pipefail
     ./quarkus-spring-todo-app/target/quarkus-spring-todo-app-1.0.0-SNAPSHOT-runner -Xmx256M -Xms256M &
     PID=$!
-    sleep 5
+    sleep 10
     just stress
-    RSS=$(ps aux | grep -i quarkus-spring-todo-app | grep -v grep | awk {'print $2'} | xargs ps x -o pid,rss,command -p | awk '{$2=int($2/1024)"M";}{ print;}' | tail +2)
+    RSS=$(ps aux | grep -i quarkus-spring-todo-app | grep -v grep | grep -v bash | awk {'print $2'} | xargs ps -o pid,rss,command -p | awk '{$2=int($2/1024)"M";}{ print;}' | tail -n 1)
     echo $RSS
     echo $RSS > rss-quarkus-spring-native.txt
     kill $PID
 
-rss-quarkus-native: build-quarkus-native start-infra  && stop-infra
+rss-quarkus-native: start-infra build-quarkus-native  && stop-infra
     #!/usr/bin/env bash
     set -euxo pipefail
     ./quarkus-todo-app/target/quarkus-todo-app-1.0.0-SNAPSHOT-runner -Xmx256M -Xms256M &
     PID=$!
-    sleep 5
+    sleep 10
     just stress
-    RSS=$(ps aux | grep -i quarkus-todo-app | grep -v grep | awk {'print $2'} | xargs ps x -o pid,rss,command -p | awk '{$2=int($2/1024)"M";}{ print;}' | tail +2)
+    RSS=$(ps aux | grep -i quarkus-todo-app | grep -v grep | grep -v bash | awk {'print $2'} | xargs ps -o pid,rss,command -p | awk '{$2=int($2/1024)"M";}{ print;}' | tail -n 1)
     echo $RSS
     echo $RSS > rss-quarkus-native.txt
     kill $PID

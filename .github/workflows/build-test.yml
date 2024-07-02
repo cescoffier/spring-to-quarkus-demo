@@ -71,7 +71,7 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: RSS
+      - name: RSS (JVM)
         run: |
           python -m pip install --upgrade pip wheel
           python -m pip install httpie
@@ -125,3 +125,54 @@ jobs:
         if: matrix.app != 'spring-todo-app'
         working-directory: ${{ matrix.app }}
         run: ./mvnw -B clean verify -Pnative -Dquarkus.http.host=0.0.0.0 -DskipITs=false
+
+  native-rss:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app:
+          - spring
+          - quarkus-spring
+          - quarkus
+    name: "native-rss-${{ matrix.app }}"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: extractions/setup-just@v2
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JVM_VERSION }}
+          distribution: temurin
+          cache: maven
+      - name: Cache and restore GraalVM CE
+        id: check-graal-cache
+        uses: actions/cache@v4
+        with:
+          path: graalvm-community-jdk-${{ env.GRAALVM_CE_VERSION }}_linux-x64_bin.tar.gz
+          key: graal-distro-${{ env.JVM_VERSION }}
+
+      - name: Download GraalVM CE ${{ matrix.graal.graal }}
+        if: steps.check-graal-cache.outputs.cache-hit != 'true'
+        run: |
+          download_url="https://github.com/graalvm/graalvm-ce-builds/releases/download/jdk-${{ env.GRAALVM_CE_VERSION }}/graalvm-community-jdk-${{ env.GRAALVM_CE_VERSION }}_linux-x64_bin.tar.gz"
+          wget -q -O graalvm-community-jdk-${{ env.GRAALVM_CE_VERSION }}_linux-x64_bin.tar.gz $download_url
+
+      - name: Setup GraalVM CE
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'jdkfile'
+          jdkFile: graalvm-community-jdk-${{ env.GRAALVM_CE_VERSION }}_linux-x64_bin.tar.gz
+          java-version: ${{ env.JVM_VERSION }}
+          architecture: x64
+          cache: maven
+
+      - name: RSS (Native)
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install httpie
+          just rss-${{ matrix.app }}-native
+          echo "## rss-${{ matrix.app }}-native " >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          cat rss-${{ matrix.app }}-native.txt >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
